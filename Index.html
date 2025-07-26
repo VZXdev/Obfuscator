@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lua Obfuscator</title>
+    <style>
+      /* Animations */
+    @keyframes popup {
+    0% {
+        transform: scale(0);
+    }
+    100% {
+        transform: scale(1);
+    }
+    }
+
+    @keyframes idle {
+    0% {
+        transform: rotate(5deg);
+    }
+    100% {
+        transform: rotate(-5deg);
+    }
+    }
+
+    /* CSS */
+    * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    outline: none;
+    border: none;
+    text-decoration: none;
+    }
+
+    body {
+    display: flex;
+    font-family: Geneva, Verdana, sans-serif;
+    color: white;
+    min-height: 100vh;
+    background-color: #232323;
+    justify-content: center;
+    align-items: center;
+    padding: 6rem 0 2rem;
+    }
+
+    /* navbar */
+
+
+    /* Profile */
+
+
+    /* Card Form */
+    form {
+    width: 75%;
+    }
+    .card {
+    display: block;
+    width: 100%;
+    position: relative;
+    background-color: rgba(68, 68, 68, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 0 42px#222;
+    animation: popup 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) 1 normal
+        forwards;
+    }
+
+    .card-header {
+    display: flex;
+    padding: 1rem;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 2px solid rgb(255, 255, 255, 0.5);
+    }
+
+    .card-header h3 {
+    color: white;
+    transition: 0.5s;
+    }
+
+    .card-header h3:hover {
+    color: rgb(255, 143, 16);
+    transition: 0.5s;
+    }
+
+    .card-body {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    }
+
+    /* Textarea for script input */
+    .script-input {
+    margin-bottom: 1rem;
+    width: 100%;
+    }
+
+    .script-input textarea {
+    width: 100%;
+    min-height: 200px;
+    padding: 10px;
+    background-color: rgba(68, 68, 68, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    color: white;
+    font-family: monospace;
+    resize: vertical;
+    transition: 0.2s ease-in-out;
+    }
+
+    .script-input textarea:focus {
+    border: 2px solid rgb(255, 143, 16);
+    outline: none;
+    }
+
+    /* Result area */
+    .result-area {
+    margin-top: 2rem;
+    display: none;
+    width: 100%;
+    }
+
+    .result-area h3 {
+    margin-bottom: 0.5rem;
+    }
+
+    .result-area textarea {
+    width: 100%;
+    min-height: 200px;
+    padding: 10px;
+    background-color: rgba(68, 68, 68, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    color: white;
+    font-family: monospace;
+    resize: vertical;
+    }
+
+    /* Key Input */
+    .inputBox {
+    margin-bottom: 0.4rem;
+    position: relative;
+    width: 250px;
+    }
+
+    .inputBox input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(68, 68, 68, 0.5);
+    border-radius: 5px;
+    font-size: 1em;
+    color: white;
+    transition: 0.5s ease;
+    }
+
+    .inputBox span {
+    position: absolute;
+    left: 0;
+    padding: 10px;
+    font-size: 1em;
+    color: rgba(255, 255, 255, 0.25);
+    text-transform: uppercase;
+    transition: 0.5s ease;
+    }
+
+    .inputBox input:valid ~ span,
+    .inputBox input:focus ~ span {
+    color: rgb(255, 143, 16);
+    transform: translateX(10px) translateY(-7px);
+    font-size: 0.65em;
+    padding: 0 10px;
+    background: rgb(68, 68, 68);
+    border-left: 1px solid rgb(255, 143, 16);
+    border-right: 1px solid rgb(255, 143, 16);
+    }
+
+    .inputBox input:valid,
+    .inputBox input:focus {
+    border: 1px solid rgb(255, 143, 16);
+    background: rgb(68, 68, 68);
+    }
+
+    /* Range input (ползунок) */
+    input[type="range"] {
+    width: 100%;
+    height: 8px;
+    appearance: none;
+    background: rgb(35, 35, 35);
+    border-radius: 5px;
+    margin: 1rem 0;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    background: rgb(255, 143, 16);
+    border-radius: 50%;
+    cursor: pointer;
+    }
+
+    /* Button submit */
+    .card-body button {
+    display: block;
+    margin: 1rem auto 0;
+    text-transform: uppercase;
+    color: white;
+    font-weight: 500;
+    font-size: 1.3em;
+    position: relative;
+    background: rgba(255, 255, 255, 1);
+    padding: 15px 30px;
+    transition: 0.5s;
+    cursor: pointer;
+    }
+
+    .card-body button:hover {
+    letter-spacing: 0.25em;
+    background: rgb(255, 157, 45);
+    color: rgb(255, 157, 45);
+    box-shadow: 0 0 15px rgba(255, 157, 45, 0.5);
+    }
+
+    .card-body button::before {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    background: rgb(68, 68, 68);
+    }
+
+    .card-body button span {
+    position: relative;
+    z-index: 1;
+    }
+
+    .card-body button i {
+    position: absolute;
+    inset: 0;
+    display: block;
+    }
+
+    .card-body button i::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 75%;
+    border: 2px solid rgb(255, 143, 16);
+    width: 15px;
+    transform: translateY(-4px);
+    height: 8px;
+    background: rgb(68, 68, 68);
+    transition: 0.5s;
+    }
+
+    .card-body button:hover i::before {
+    transform: translateX(-50%) translateY(-4px);
+    border: 2px solid #fff;
+    width: 30px;
+    left: 20%;
+    }
+
+    .card-body button i::after {
+    content: "";
+    position: absolute;
+    border: 2px solid rgb(255, 143, 16);
+    bottom: 0;
+    left: 15%;
+    width: 15px;
+    height: 8px;
+    background: rgb(68, 68, 68);
+    transition: 0.5s;
+    transform: translateY(4px);
+    }
+
+    .card-body button:hover i::after {
+    transform: translateX(-50%) translateY(4px);
+    border: 2px solid #fff;
+    width: 30px;
+    left: 80%;
+    }
+
+      /* Copy button */
+    ::-webkit-scrollbar {
+    width: 10px; /* ширина вертикального скроллбара */
+    height: 10px; /* высота горизонтального скроллбара */
+    }
+
+    ::-webkit-scrollbar-track {
+    background: rgba(68, 68, 68, 0.3); /* цвет фона трека */
+    border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+    background: rgb(35, 35, 35); /* цвет самого ползунка */
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+    background: rgb(50, 50, 50); /* цвет при наведении */
+    }
+
+    /* Для Firefox */
+    * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(35, 35, 35) rgba(68, 68, 68, 0.3);
+    }
+      
+    </style>
+  </head>
+  <body>
+
+    <!-- Card -->
+    <form id="form">
+      <div class="card">
+        <div class="card-header">
+          <h3>Obfuscator</h3>
+        </div>
+        <div class="card-body">
+          <div class="script-input">
+            <h3>Enter Your Lua Script Here:</h3>
+            <textarea id="script" placeholder="Paste your Lua code here..."></textarea>
+          </div>
+         
+
+          <button type="submit" id="obfuscate">
+            <span>Obfuscate</span><i></i>
+          </button>
+
+          <!-- Result area -->
+          <div class="result-area" id="resultArea">
+            <h3>Obfuscated Result:</h3>
+            <textarea id="result" readonly></textarea>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <script>
+      // declare realkey variable
+      let realKey = "";
+
+      // random chars length
+      let leng = 128;
+      // key integer length xor loop
+      let k = 0;
+
+      // characters
+      const abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+      // characters table
+      let abcTab = [];
+
+      // inserting chars
+      for (let i = 0; i < abc.length; i++) {
+        abcTab[i] = abc[i];
+      }
+
+      // ran{m string
+      let ran1 = "";
+      let ran2 = "";
+      let ran3 = "";
+      let ran4 = "";
+      let ran5 = "";
+      let ran6 = "";
+      for (let i = 0; i < leng; i++) {
+        ran1 += abcTab[Math.floor(Math.random() * abcTab.length)];
+        ran2 += abcTab[Math.floor(Math.random() * abcTab.length)];
+        ran3 += abcTab[Math.floor(Math.random() * abcTab.length)];
+        ran4 += abcTab[Math.floor(Math.random() * abcTab.length)];
+        ran5 += abcTab[Math.floor(Math.random() * abcTab.length)];
+        ran6 += abcTab[Math.floor(Math.random() * abcTab.length)];
+      }
+
+      // function encrypt xor
+      const xorE = (sc, key) => {
+        const tabel = [];
+        let k = 0;
+        for (let i = 0; i < sc.length; i++) {
+          let byteValue = sc.charCodeAt(i) + key.charCodeAt(k);
+          k++;
+          tabel.push(byteValue);
+          if (k == key.length) {
+            k = 0;
+          }
+        }
+        return tabel;
+      };
+
+      const xorE2 = (sc, key) => {
+        let tabel = [];
+        for (let i = 0; i < sc.length; i++) {
+          k += 1;
+          let byte = sc.charCodeAt(i) + key.charCodeAt(k);
+          tabel.push(byte);
+          if (k == key.length) {
+            k = 0;
+          }
+        }
+        k = 0;
+        return tabel;
+      };
+
+      // function decrypt xor for testing
+      const xorD = (tabel) => {
+        let hasil = "";
+        for (const v of tabel) {
+          k = k + 1;
+          hasil = hasil + String.fromCharCode(v - key.charCodeAt(k));
+          if (k == key.length) {
+            k = 0;
+          }
+        }
+        return hasil;
+      };
+
+      // declare tabel alibi
+      let tab1 = [];
+      let tab2 = [];
+      let tab3 = [];
+      let tab4 = [];
+      let tab5 = [];
+      let tab6 = [];
+
+      for (let i = 0; i < leng; i++) {
+        tab1[i] =
+          abcTab[Math.floor(Math.random() * abcTab.length)].charCodeAt(0);
+        tab2[i] =
+          abcTab[Math.floor(Math.random() * abcTab.length)].charCodeAt(0);
+        tab3[i] =
+          abcTab[Math.floor(Math.random() * abcTab.length)].charCodeAt(0);
+        tab4[i] =
+          abcTab[Math.floor(Math.random() * abcTab.length)].charCodeAt(0);
+        tab5[i] =
+          abcTab[Math.floor(Math.random() * abcTab.length)].charCodeAt(0);
+        tab6[i] =
+          abcTab[Math.floor(Math.random() * abcTab.length)].charCodeAt(0);
+      }
+
+      tab1 = tab1.join();
+      tab2 = tab2.join();
+      tab3 = tab3.join();
+      tab4 = tab4.join();
+      tab5 = tab5.join();
+      tab6 = tab6.join();
+
+      // function alibi alias pengalhan
+      const alibi = (var1, var2, var3, tablenya) => {
+        return `_ENV={string=string,table=table,math=math,pairs=pairs,load=load,print=print};${var1}="${var2}";${var2}="${var1}";${var3}={${tablenya}};function xor(t)local ciphertext="";for i=1,#${var2} do local byte=string.byte(${var2}, i);local quibit=string.byte(${var1},(i-1)%#${var1}+1);ciphertext=ciphertext..string.char(bit.bxor(byte,quibit));end;return ciphertext;end;bit={bxor=function(a,b)local r,m=0,1;while a>0 and b>0 do local aa,bb=a%2,b%2;r=r+m*((aa+bb)%2);m=m*2;a=math.floor(a/2);b=math.floor(b/2) end;if a>0 then r=r+m*a end;if b>0 then r=r+m*b end;return r;end};xor(${var3})${ran1}z="Encrypt By Yasu";`;
+      };
+
+      // @return function decrypt real
+      const decX = (tabel) => {
+        let script = ran3;
+        let keyleng = ran4;
+        let l = ran1;
+        let v = ran2;
+        let hasil = ran5;
+        return `${script}={${tabel.join()}};${keyleng}=0;${hasil}='';for ${l},${v} in pairs(${script}) do ${keyleng}=${keyleng}+1;${hasil}=${hasil}.._ENV["\\115\\116\\114\\105\\110\\103"]["\\99\\104\\97\\114"](${v}-_ENV["\\115\\116\\114\\105\\110\\103"]["\\98\\121\\116\\101"]("${realKey}",${keyleng}));if ${keyleng}==#"${realKey}" then ${keyleng}=0;end;end;if ${ran1}z=="\\69\\110\\99\\114\\121\\112\\116\\32\\66\\121\\32\\89\\97\\115\\117" then _ENV["\\108\\111\\97\\100"](${hasil})() else print("Error whle runing this code");end;`;
+      };
+
+      const form = document.getElementById("form");
+      const resultArea = document.getElementById("resultArea");
+      const resultTextarea = document.getElementById("result");
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        console.log("Encrypting..");
+        
+        let scriptText = document.getElementById("script").value;
+        if (!scriptText) {
+          alert("Please enter Lua script first!");
+          return;
+        }
+        
+        const keys = 'ChangeThisIfYouWant'
+        
+        console.log(keys);
+        realKey = "";
+        for (let i = 0; i < keys.length; i++) {
+          realKey += "\\" + keys.charCodeAt(i);
+        }
+        
+        const templateE = `local key=[[${keys}]];${ran1}z="Encrypt By Yasu";${ran2}=${ran1};${ran3}=${ran2};${ran4}=${ran3};${ran5}=${ran4};${ran6}=${ran5};`;
+        const Output =
+          templateE +
+          alibi(ran1, ran2, ran3, tab1) +
+          alibi(ran4, ran2, ran5, tab2) +
+          alibi(ran6, ran3, ran1, tab3) +
+          decX(xorE(scriptText, keys)) +
+          alibi(ran2, ran4, ran6, tab4) +
+          alibi(ran1, ran4, ran5, tab5) +
+          alibi(ran2, ran1, ran3, tab6);
+        
+          let utput = `--[[
+Obfuscated using QuasarObfuscater [v1.0.0]
+Original size: ${scriptText.length} chars
+Obfuscate time: 0.90 ms
+Website: https://VZXdev.github.io/Obfuscator
+Generated at: ${new Date().toLocaleString()}
+]]\n\n` + Output;
+        // Show result area
+        resultArea.style.display = "block";
+        resultTextarea.value = utput;
+        
+        // Scroll to result
+        resultArea.scrollIntoView({ behavior: 'smooth' });
+      });
+
+      // Copy to clipboard
+      
+    </script>
+  </body>
+</html>
